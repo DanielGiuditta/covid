@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Covid Chart</title>
+    <style>
+        .chart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            height: auto;
+
+            overflow: auto;
+            width: max-content;
+
+        }
+        .bar {
+            height: 1px;
+            display: flex;
+
+        }
+        .bar div {
+            height: 100%;
+        }
+        .cases { background-color: blue; width: 0; } /* Initial width 0, set by JS */
+        .hospitalizations { background-color: yellow; width: 0; } /* Initial width 0, set by JS */
+        .deaths { background-color: red; width: 0; } /* Initial width 0, set by JS */
+        
+        .label { 
+            display: none; 
+            position: absolute; /* Position the label absolutely */
+            left: 2em; /* Set the label 1em from the left of the bar */
+            white-space: nowrap; /* Keep the label on one line */
+            border-color: black;
+            background-color: white;
+            padding: .2em;
+            color: black; /* Ensure the text color is visible */
+        }
+        .bar:hover .label {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-container" id="chartContainer">
+        <!-- Bars will be added by JavaScript -->
+    </div>
+    <script>
+        async function fetchData() {
+            const response = await fetch("https://data.cityofnewyork.us/resource/rc75-m7u3.json?$query=SELECT%20%60date_of_interest%60,%20%60case_count%60,%20%60hospitalized_count%60,%20%60death_count%60");
+            const data = await response.json();
+    
+
+    
+            const container = document.getElementById('chartContainer');
+            data.forEach(item => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+    
+                const death = document.createElement('div');
+                death.className = 'deaths';
+                death.style.width = `${item.death_count}px`;
+    
+                const hospitalized = document.createElement('div');
+                hospitalized.className = 'hospitalizations';
+                hospitalized.style.width = `${item.hospitalized_count}px`;
+    
+                const cases = document.createElement('div');
+                cases.className = 'cases';
+                cases.style.width = `${item.case_count}px`;
+    
+                const label = document.createElement('span');
+                label.className = 'label';
+                label.textContent = item.date_of_interest.split('T')[0]; // Display only date part
+    
+                bar.appendChild(death);
+                bar.appendChild(hospitalized);
+                bar.appendChild(cases);
+                bar.appendChild(label);
+    
+                container.appendChild(bar);
+            });
+        }
+    
+        fetchData();
+    </script>
+    
+</body>
+</html>
